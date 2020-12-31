@@ -1,0 +1,15 @@
+class Main {
+    void main() {
+        long a = new long(2147483647);
+        a.print();
+        long b = new long(2147483646);
+        b.print();
+        (a + b + b).print();
+        (b - a).print();
+    }
+
+
+    static void print(int a) {
+        #tellraw @a {"score": {"name": "${a}", "objective": "cmc"}};
+    }
+}
