@@ -1,0 +1,78 @@
+Model:
+	classes*=Class;
+
+Class:
+	'class' name=ID ('extends' e=ID)? '{' things *= Thing '}';
+
+Thing:
+	Field | Method;
+
+Field:
+	static?="static" type=TYPE name=ID ';';
+
+Method:
+	static?="static" returnType=TYPE name=ID ('<' template += ID[','] '>')? '(' (arguments+=Argument[','])? ')' cb=CodeBlock;
+
+Argument:
+	type=ID name=ID;
+
+Instruction:
+	(Error | MCCommand | Return | Assignment | Expression) ';'; // So I want assignment | expression
+
+Error:
+    'throw' msg=/[^;]*/;
+
+MCCommand:
+    '#' command = /[^;]*/;
+
+As:
+    'as' '(' selector = /[^;)]*/ ')' cb=CodeBlock;
+
+Command:
+	Instruction | FlowControl;
+
+Return:
+    'return' (rval=Expression)?;
+
+CodeBlock:
+	instructions+=Command | '{' instructions*=Command '}';
+
+FlowControl:
+	As | If | While | For;
+
+While:
+	'while' '(' exp=Expression ')' code=CodeBlock;
+
+If:
+	'if' '(' exp=Expression ')' code=CodeBlock;
+
+For:
+    'for' '(' type=TYPE name=ID ':' arr=Expression ')' code=CodeBlock;
+
+Assignment:
+	(name=INDEX '=' value=Expression) | (name=PROP '=' value=Expression) | (type=TYPE name=ID '=' value=Expression);
+
+Expression: expr=Compare;
+SumOp: '+'|'-';
+ProdOp: '*'|'/'|'%';
+CompOp: '==' | '!=' | '<' | '>' | '<=' | '>=';
+BoolOp: '&&' | '||';
+Compare: comp += Sum (op += CompOp comp += Sum)*;
+Sum: prod+=Product (op+=SumOp prod+=Product)*;
+Product: bools+=Bool (op+=ProdOp bools+=Bool)*;
+Bool: vals+=Value (op+=BoolOp vals += Value)*;
+Value: CAST | TEMPLATE | SCOREBOARD | ACONSTRUCTOR | INDEX | CONSTRUCTOR | NUMBER | FUNCTION_CALL | PROP | SVAL | PARENTETHIS | NOT;
+SCOREBOARD: name=ID ':' objective=ID;
+NUMBER: nval=/-?[0-9]+/;
+TYPE: ID '[]'?;
+TVal: /[^<,>]+/;
+TEMPLATE: func_name=PROP '<' tvals += TVal[','] '>' '('(func_call+=Expression[','])?')';
+FUNCTION_CALL: func_name=PROP '('(func_call+=Expression[','])?')'; // ((caller+=ID) '.')*
+NOT: '!' negate = Expression;
+CAST: '(' ctype = ID ')' tocast = Expression;
+CONSTRUCTOR: 'new' class_name=ID '('(args+=Expression[','])?')';
+ACONSTRUCTOR: 'new' class_name=ID '['length=Expression']';
+INDEX: arr=PROP '[' i=Expression ']';
+PROP: ( expr=PARENTETHIS '.' props+=ID['.']) | ( expr=ID '.' props+=ID['.']) | (var = ID);
+SVAL: STRING;
+PARENTETHIS: ('('expr= Expression ')');
