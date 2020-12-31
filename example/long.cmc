@@ -1,0 +1,35 @@
+class long {
+    int msb;
+    int lsb;
+
+    init long(int val) {
+        lsb = val;
+    }
+
+    static int overflow(int a, int b) {
+        if (b > 0) {
+            return (a > (2147483647 - b));
+        }
+        return 0-(a < (-2147483648 - b));
+    }
+
+    static long add(long a, long b) {
+        long c = new long(a.lsb + b.lsb);
+        c.msb = a.msb + b.msb + overflow(a.lsb, b.lsb);
+        return c;
+    }
+
+    static long sub(long a, long b) {
+        long c = new long(0-b.lsb);
+        c.msb = 0-b.msb;
+        return add(a, c);
+    }
+
+    static long mul(long a, long b) {
+        throw Not IMPLEMENTED!;
+    }
+
+    void print() {
+        #tellraw @a [{"score": {"name": "${msb}", "objective": "cmc"}}, "*2^32+", {"score": {"name": "${lsb}", "objective": "cmc"}}];
+    }
+}
