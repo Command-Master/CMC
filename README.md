@@ -1,5 +1,5 @@
 # CMC
-Compilation of a syntex very similar to java to Minecraft Commands.
+Compilation of a syntax very similar to java to Minecraft Commands.
 
 The output is in the `functions` folder, which you should copy inside a datapack with the `cmc` namespace.
 
